@@ -11,18 +11,9 @@ set(JENNIC_MAC "MiniMac")
 set(SDK_PREFIX ${PROJECT_SOURCE_DIR}/sdk)
 set(ZPS_CONFIG "${SDK_PREFIX}/middleware/wireless/zigbee/tools/ZPSConfig/Source/ZPSConfig.py")
 set(PDUM_CONFIG "${SDK_PREFIX}/middleware/wireless/zigbee/tools/PDUMConfig/Source/PDUMConfig.py")
-set(ZPSCFG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/app.zpscfg")
+set(ZPSCFG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${APP_TARGET}/app.zpscfg")
 
 # ============= START - PDUMConfig / ZPSConfig library =============
-add_library(${PRE_BUILD_TARGET} STATIC
-    zps_gen.c
-    pdum_gen.c
-    pdum_apdu.S
-)
-target_include_directories(${PRE_BUILD_TARGET} PUBLIC 
-    ${CMAKE_CURRENT_BINARY_DIR}
-)
-
 add_custom_command(
     OUTPUT
         pdum_gen.c
@@ -50,6 +41,15 @@ add_custom_command(
             -o ${CMAKE_CURRENT_BINARY_DIR}
             -c ${TOOLCHAIN_ABS_PATH}
 )
+
+add_library(${PRE_BUILD_TARGET} STATIC
+    zps_gen.c
+    pdum_gen.c
+)
+target_include_directories(${PRE_BUILD_TARGET} PUBLIC
+    ${CMAKE_CURRENT_BINARY_DIR}
+)
+
 # ============= END - PDUMConfig / ZPSConfig library =============
 add_compile_definitions(
     ${JENNIC_CHIP}=5189
@@ -110,9 +110,11 @@ set(SDK_INCLUDE_FOLDERS
 )
 
 include_directories(
-    ${PROJECT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_BINARY_DIR}
     ${SDK_INCLUDE_FOLDERS}
+    ${PROJECT_SOURCE_DIR}/firmwares
+    ${PROJECT_SOURCE_DIR}/firmwares/common/include
+    ${PROJECT_SOURCE_DIR}/firmwares/${APP_TARGET}
 )
 
 link_directories(
@@ -186,7 +188,6 @@ target_compile_definitions(${APP_TARGET} PRIVATE
     # DEBUG_ON_OFF_EP
     # DEBUG_POLL
     # DEBUG_REPORT
-    TARGET_${APP_TARGET}
 )
 
 target_link_libraries(${APP_TARGET}
