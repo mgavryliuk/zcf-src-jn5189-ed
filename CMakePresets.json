@@ -1,0 +1,29 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 28,
+        "patch": 1
+    },
+    "configurePresets": [
+        {
+            "name": "WXKG15LM_ALT",
+            "displayName": "WXKG15LM_ALT",
+            "description": "Presset to build WXKG15LM_ALT",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "toolchain/CMakeToolchain.cmake",
+                "TARGET": "WXKG15LM_ALT"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "WXKG15LM_ALT",
+            "configuration": "Release",
+            "configurePreset": "WXKG15LM_ALT",
+            "targets": "WXKG15LM_ALT.bin"
+        }
+    ]
+}

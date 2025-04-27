@@ -1,0 +1,9 @@
+build
+toolchain/**
+!toolchain/CMakeToolchain.cmake
+!.keep
+sdk/**
+!sdk/.keep
+
+.DS_Store
+.vscode
