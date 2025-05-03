@@ -13,7 +13,7 @@
             "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "toolchain/CMakeToolchain.cmake",
+                "CMAKE_TOOLCHAIN_FILE": "CMakeToolchain.cmake",
                 "TARGET": "WXKG15LM"
             }
         }

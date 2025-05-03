@@ -19,12 +19,10 @@
                 "ms-vscode.cmake-tools",
                 "ms-python.python",
                 "ms-vscode.cpptools",
-                "ms-vscode.cpptools-extension-pack",
-                "ms-vscode.cpptools-themes"
+                "ms-vscode.cpptools-extension-pack"
             ]
         }
     },
-    "onCreateCommand": "bash ${containerWorkspaceFolder}/.devcontainer/scripts/download_toolchain.sh",
     "features": {
         "ghcr.io/devcontainers/features/git:1": {},
         "ghcr.io/devcontainers/features/common-utils:2.5.3": {

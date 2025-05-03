@@ -9,9 +9,11 @@ set(JENNIC_STACK "MAC")
 set(JENNIC_MAC "MiniMac")
 
 set(SDK_PREFIX ${PROJECT_SOURCE_DIR}/sdk)
+set(SDK_LINKER_SCRIPT_DIR ${SDK_PREFIX}/middleware/wireless/zigbee/platform/K32W0/libs)
 set(ZPS_CONFIG "${SDK_PREFIX}/middleware/wireless/zigbee/tools/ZPSConfig/Source/ZPSConfig.py")
 set(PDUM_CONFIG "${SDK_PREFIX}/middleware/wireless/zigbee/tools/PDUMConfig/Source/PDUMConfig.py")
 set(ZPSCFG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${APP_TARGET}/app.zpscfg")
+set(DK6_IMAGE_TOOL "${SDK_PREFIX}/tools/imagetool/dk6_image_tool.py")
 
 # ============= START - PDUMConfig / ZPSConfig library =============
 add_custom_command(
@@ -34,8 +36,8 @@ add_custom_command(
              ${ZPS_CONFIG}
             -n ${APP_TARGET}
             -t ${JENNIC_CHIP}
-            -l ${SDK_PREFIX}/middleware/wireless/zigbee/Library/libZPSNWK_ZED.a
-            -a ${SDK_PREFIX}/middleware/wireless/zigbee/Library/libZPSAPL.a
+            -l ${SDK_LINKER_SCRIPT_DIR}/libZPSNWK_ZED.a
+            -a ${SDK_LINKER_SCRIPT_DIR}/libZPSAPL.a
             -e LITTLE_ENDIAN_PROCESSOR
             -f ${ZPSCFG_FILE}
             -o ${CMAKE_CURRENT_BINARY_DIR}
@@ -105,6 +107,7 @@ set(SDK_INCLUDE_FOLDERS
     ${SDK_PREFIX}/devices/JN5189
     ${SDK_PREFIX}/CMSIS/Include
     ${SDK_PREFIX}/components/serial_manager
+    ${SDK_PREFIX}/components/uart
     ${SDK_PREFIX}/middleware/wireless/framework/LowPower/Interface/jn5189dk6
     ${SDK_PREFIX}/middleware/wireless/framework/OSAbstraction/Interface
 )
@@ -115,6 +118,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/firmwares
     ${PROJECT_SOURCE_DIR}/firmwares/common/include
     ${PROJECT_SOURCE_DIR}/firmwares/${APP_TARGET}
+    ${PROJECT_SOURCE_DIR}/firmwares/${APP_TARGET}/board
 )
 
 link_directories(
@@ -124,7 +128,7 @@ link_directories(
     ${SDK_PREFIX}/middleware/wireless/framework/PDUM/Library
     ${SDK_PREFIX}/middleware/wireless/framework/PWRM/Library
     ${SDK_PREFIX}/middleware/wireless/framework/XCVR/lib
-    ${SDK_PREFIX}/middleware/wireless/zigbee/Library
+    ${SDK_LINKER_SCRIPT_DIR}
 )
 
 # ============= START - SDK library =============
@@ -137,14 +141,21 @@ set(SDK_SRC
     ${SDK_PREFIX}/devices/JN5189/utilities/str/fsl_str.c
     ${SDK_PREFIX}/devices/JN5189/utilities/fsl_assert.c
     ${SDK_PREFIX}/components/serial_manager/serial_manager.c
+    ${SDK_PREFIX}/components/serial_manager/serial_port_uart.c
+    ${SDK_PREFIX}/components/uart/usart_adapter.c
     ${SDK_PREFIX}/devices/JN5189/drivers/fsl_adc.c
-    # ${SDK_PREFIX}/devices/JN5189/drivers/fsl_aes.c
     ${SDK_PREFIX}/devices/JN5189/drivers/fsl_clock.c
+    ${SDK_PREFIX}/devices/JN5189/drivers/fsl_gpio.c
+    ${SDK_PREFIX}/devices/JN5189/drivers/fsl_reset.c
+    ${SDK_PREFIX}/devices/JN5189/drivers/fsl_power.c
+
+    # ${SDK_PREFIX}/devices/JN5189/drivers/fsl_aes.c
     # ${SDK_PREFIX}/devices/JN5189/drivers/fsl_common.c
+    ${SDK_PREFIX}/devices/JN5189/drivers/fsl_usart.c
     # ${SDK_PREFIX}/devices/JN5189/drivers/fsl_ctimer.c
     # ${SDK_PREFIX}/devices/JN5189/drivers/fsl_dma.c
     # ${SDK_PREFIX}/devices/JN5189/drivers/fsl_flash.c
-    # ${SDK_PREFIX}/devices/JN5189/drivers/fsl_flexcomm.c
+    ${SDK_PREFIX}/devices/JN5189/drivers/fsl_flexcomm.c
     # ${SDK_PREFIX}/devices/JN5189/drivers/fsl_fmeas.c
     # ${SDK_PREFIX}/devices/JN5189/drivers/fsl_gint.c
     # ${SDK_PREFIX}/devices/JN5189/drivers/fsl_gpio.c
@@ -168,9 +179,11 @@ set(LDLIBS
 )
 
 set(APP_SRC
-    main.c
-    # board_utility.c
-    # board.c
+    common/src/main.c
+    ${APP_TARGET}/board/board.c
+    ${APP_TARGET}/board/board_utility.c
+    ${APP_TARGET}/board/clock_config.c
+    ${APP_TARGET}/board/pin_mux.c
 )
 add_executable(${APP_TARGET} ${APP_SRC})
 
@@ -197,12 +210,15 @@ target_link_libraries(${APP_TARGET}
     -Wl,--end-group
 )
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -TAppBuild16kEndDevice.ld")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -TAppBuildMinRetention_JN5189.ld")
+
+MESSAGE(STATUS "CMAKE_SIZE: ${CMAKE_SIZE}")
 
 set_target_properties(${APP_TARGET} PROPERTIES SUFFIX ".axf")
 add_custom_command(TARGET ${APP_TARGET} POST_BUILD COMMAND ${CMAKE_SIZE} ${APP_TARGET}.axf)
 add_custom_target(${APP_TARGET}.bin ALL
     DEPENDS ${APP_TARGET}
+    COMMAND uv run --directory ${VENV_DIR} ${DK6_IMAGE_TOOL} -s 294912 ${CMAKE_CURRENT_BINARY_DIR}/${APP_TARGET}.axf
     COMMAND ${CMAKE_COMMAND} -E echo "Generating binary ..."
-    # COMMAND ${CMAKE_OBJCOPY} -v -O binary ${APP_TARGET}.axf ${APP_TARGET}.bin
+    COMMAND ${CMAKE_OBJCOPY} -v -O binary ${APP_TARGET}.axf ${APP_TARGET}.bin
 )
