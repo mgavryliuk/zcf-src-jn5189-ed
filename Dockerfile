@@ -15,7 +15,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xz-utils \
     make \
     cmake \
-    # libfl2 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p ${TOOLCHAIN_DIR} && \
