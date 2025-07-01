@@ -14,7 +14,8 @@
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "CMakeToolchain.cmake",
-                "TARGET": "WXKG15LM"
+                "TARGET": "WXKG15LM",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }
         }
     ],

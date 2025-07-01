@@ -17,9 +17,8 @@
         "vscode": {
             "extensions": [
                 "ms-vscode.cmake-tools",
-                "ms-python.python",
-                "ms-vscode.cpptools",
-                "ms-vscode.cpptools-extension-pack"
+                "anysphere.cpptools",
+                "anysphere.cursorpyright"
             ]
         }
     },

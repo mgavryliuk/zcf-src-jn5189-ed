@@ -74,12 +74,15 @@ set(SDK_INCLUDE_FOLDERS
     ${SDK_PREFIX}/middleware/wireless/framework/TimersManager/Interface
     ${SDK_PREFIX}/middleware/wireless/framework/TimersManager/Source
     ${SDK_PREFIX}/middleware/wireless/framework/SecLib
+    ${SDK_PREFIX}/middleware/wireless/framework/Messaging/Interface
 
     ${SDK_PREFIX}/middleware/wireless/ieee-802.15.4/Include
     ${SDK_PREFIX}/middleware/wireless/ieee-802.15.4/mMac/Include
     ${SDK_PREFIX}/middleware/wireless/ieee-802.15.4/uMac/Include
     ${SDK_PREFIX}/wireless/framework/DebugFifo/Include
-    # ${SDK_PREFIX}/middleware/wireless/zigbee/platform/
+    ${SDK_PREFIX}/middleware/wireless/zigbee/platform/
+    ${SDK_PREFIX}/middleware/wireless/zigbee/BDB/Include
+    ${SDK_PREFIX}/middleware/wireless/zigbee/ZCIF/Include
     ${SDK_PREFIX}/middleware/wireless/zigbee/ZigbeeCommon/Include
     ${SDK_PREFIX}/middleware/wireless/zigbee/ZPSAPL/Include
     ${SDK_PREFIX}/middleware/wireless/zigbee/ZPSMAC/Include
@@ -93,7 +96,6 @@ include_directories(
     ${SDK_INCLUDE_FOLDERS}
     ${PROJECT_SOURCE_DIR}/firmwares/common/include
     ${PROJECT_SOURCE_DIR}/firmwares/${APP_TARGET}
-    ${PROJECT_SOURCE_DIR}/firmwares/${APP_TARGET}/board
 )
 
 link_directories(
@@ -194,9 +196,13 @@ set(SDK_SRC
     ${SDK_PREFIX}/middleware/wireless/framework/SecLib/SecLib.c
     ${SDK_PREFIX}/middleware/wireless/framework/TimersManager/Source/TimersManager.c
     ${SDK_PREFIX}/middleware/wireless/framework/TimersManager/Source/TMR_Adapter.c
+    ${SDK_PREFIX}/middleware/wireless/framework/Messaging/Source/Messaging.c
 
     ${SDK_PREFIX}/middleware/wireless/zigbee/ZigbeeCommon/Source/port_JN518x.c
     ${SDK_PREFIX}/middleware/wireless/zigbee/ZigbeeCommon/Source/ZTimer.c
+    ${SDK_PREFIX}/middleware/wireless/zigbee/ZigbeeCommon/Source/ZQueue.c
+
+    ${SDK_PREFIX}/middleware/wireless/zigbee/platform/K32W0/platform/timer.c
 )
 add_library(${SDK_TARGET} STATIC ${SDK_SRC})
 target_link_libraries(${SDK_TARGET} PUBLIC ${PRE_BUILD_TARGET})
@@ -221,8 +227,11 @@ set(APP_SRC
     pdum_gen.c
     pdum_apdu.S
 
+    ${APP_TARGET}/device_config.c
+    common/src/app_leds.c
+    common/src/app_buttons.c
     common/src/app_main.c
-    common/src/app_pwr.c
+    common/src/app_resources.c
     common/src/app_wwdt.c
     common/src/board_utility.c
     common/src/hardware_init.c
@@ -230,21 +239,14 @@ set(APP_SRC
 add_executable(${APP_TARGET} ${APP_SRC})
 
 target_compile_definitions(${APP_TARGET} PRIVATE
-    DEBUG_AWWDT
-    DEBUG_APWR
-    # DEBUG_ENTRYPOINT
-    # DEBUG_BASIC_EP
-    # DEBUG_BATTERY
-    # DEBUG_BUTTON
-    # DEBUG_MAIN
-    # DEBUG_NODE
-    # DEBUG_EVENTS
-    # DEBUG_NODE_AF_CB
-    # DEBUG_NODE_BDB
-    # DEBUG_NODE_ZDO
-    # DEBUG_ON_OFF_EP
-    # DEBUG_POLL
-    # DEBUG_REPORT
+    DEBUG_APP_WWDT
+    DEBUG_APP_MAIN
+    DEBUG_APP_BUTTONS
+    DEBUG_APP_LEDS
+    DEBUG_APP_RESOURCES
+    DEBUG_APP_EVENTS
+    DEBUG_APP_BUTTONS
+    DEBUG_APP_RESOURCES
 )
 
 target_link_libraries(${APP_TARGET}

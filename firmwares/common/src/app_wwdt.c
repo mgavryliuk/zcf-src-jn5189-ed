@@ -1,14 +1,13 @@
+#include "app_wwdt.h"
+
 #include <jendefs.h>
 
-#include "dbg.h"
 #include "JN5189.h"
+#include "dbg.h"
 #include "fsl_clock.h"
 #include "fsl_wwdt.h"
 
-#include "app_wwdt.h"
-
-PUBLIC void vAppSetupWWDT(void)
-{
+void APP_WWDT_Init(void) {
     DBG_vPrintf(TRACE_WWDT, "WWDT: Setup WWDT called\n");
     uint32_t wdtClockFrequency;
     uint32_t wdtFreq;
